@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cf
 import cfplot as cfp
+from generate_data import generate_data
 
 class TwoVariableNet(nn.Module):
     def __init__(self):
@@ -30,15 +31,7 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters(), lr=0.01)
 
 # Generate training data
-#x_train = 2 * torch.rand(10, 1)  # Randomly spaced points
-#y_train = torch.sin(x_train)**2  # f(x) = sin(x)^2
-# data from eg online
-f = cf.read('../data1.nc', select='eastward_wind')[0]
-mydata = f.collapse('mean','longitude') 
-x_train = torch.tensor([[x,y] for x in mydata.coord('latitude').array for y in mydata.coord('pressure').array], dtype = torch.float)
-y_train = torch.tensor(mydata.array[0,:,:,0].transpose().flatten(), dtype = torch.float).unsqueeze(1)
-#original data
-print(mydata)
+mydata, x_train, y_train, x_test, y_test = generate_data('../data1.nc', n_test=20) 
 cfp.con(mydata)
 
 # Training loop
