@@ -31,7 +31,9 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters(), lr=0.01)
 
 # Generate training data
-mydata, x_train, y_train, x_test, y_test = generate_data('../data1.nc', n_test=20) 
+n_test = 8
+mydata, x_train, y_train, x_test, y_test = generate_data('../data1.nc', n_test=n_test) 
+print(mydata)
 cfp.con(mydata)
 
 # Training loop
@@ -46,8 +48,9 @@ for epoch in range(epochs):
     if (epoch + 1) % 100 == 0:
         print(f'Epoch [{epoch + 1}/{epochs}], Loss: {loss.item():.4e}')
 
-for i in range(10):
-    print(x_train[i], y_train[i], net(x_train[i]))
+# Quick look at test points
+for i in range(n_test):
+    print(x_test[i], y_test[i], net(x_test[i]))
 
 # Generate testing data
 #x_test = torch.linspace(-1, 3, 100).unsqueeze(1)  # Equally spaced points

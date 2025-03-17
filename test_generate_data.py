@@ -44,10 +44,11 @@ class TestGenerateData(unittest.TestCase):
         self.assertEqual(y_train.shape, torch.Size([3670,1]))
         self.assertEqual(x_test.shape, torch.Size([10,2]))
         self.assertEqual(y_test.shape, torch.Size([10,1]))
-        torch.testing.assert_close(x_test[0], torch.Tensor([89.1415, 1000.0000]))
-        torch.testing.assert_close(y_test[0], torch.Tensor([-1.0029]), rtol=1.e-4, atol=1.e-4)
-        torch.testing.assert_close(x_train[2], torch.Tensor([89.1415, 775.0000]))
-        torch.testing.assert_close(y_train[2], torch.Tensor([-1.2893]), rtol=1.e-4, atol=1.e-4)
+        torch.testing.assert_close(x_test[0], torch.Tensor([73.4570, 30.0000]))
+        torch.testing.assert_close(y_test[0], torch.Tensor([34.8758]), rtol=1.e-4, atol=1.e-4)
+        # This method will leave the first 4 points of training data as above
+        torch.testing.assert_close(x_train[3], torch.Tensor([89.1415, 775.0000]))
+        torch.testing.assert_close(y_train[3], torch.Tensor([-1.2893]), rtol=1.e-4, atol=1.e-4)
 
 if __name__ == '__main__':
     unittest.main()
