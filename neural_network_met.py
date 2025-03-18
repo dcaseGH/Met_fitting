@@ -7,6 +7,10 @@ import cf
 import cfplot as cfp
 from generate_data import generate_data
 
+# Control variables
+standarize_data = True
+
+
 class TwoVariableNet(nn.Module):
     def __init__(self):
         super(TwoVariableNet, self).__init__()
@@ -31,10 +35,25 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters(), lr=0.01)
 
 # Generate training data
-n_test = 8
+n_test = 20
 mydata, x_train, y_train, x_test, y_test = generate_data('../data1.nc', n_test=n_test) 
 print(mydata)
 cfp.con(mydata)
+
+if standarize_data:# and False:
+    # Compute the mean and standard deviation for features/independent variables
+    train_mean = x_train.mean(0, keepdim=True)
+    train_std_dev = x_train.std(0, unbiased=False, keepdim=True)
+    # Standardize the features
+    x_train = (x_train - train_mean) / train_std_dev
+
+    if n_test:
+        # Same with test data if used
+        test_mean = x_test.mean(0, keepdim=True)
+        test_std_dev = x_test.std(0, unbiased=False, keepdim=True)
+        x_test = (x_test - test_mean) / test_std_dev
+
+
 
 # Training loop
 epochs = 2000
@@ -48,41 +67,19 @@ for epoch in range(epochs):
     if (epoch + 1) % 100 == 0:
         print(f'Epoch [{epoch + 1}/{epochs}], Loss: {loss.item():.4e}')
 
-# Quick look at test points
-for i in range(n_test):
-    print(x_test[i], y_test[i], net(x_test[i]))
+if n_test:
+    # Quick look at test points
+    for i in range(n_test):
+        print(x_test[i], y_test[i], net(x_test[i]))
 
-# Generate testing data
-#x_test = torch.linspace(-1, 3, 100).unsqueeze(1)  # Equally spaced points
-#y_test = torch.sin(x_test)**2  # f(x) = sin(x)^2
-#print(min(x_train[:,0]),max(x_train[:,0]), min(x_train[:,1]),max(x_train[:,1]), 'range points')
-xy = np.mgrid[min(x_train[:,0]).numpy():max(x_train[:,0]).numpy():10, min(x_train[:,1]).numpy():max(x_train[:,1]).numpy():50].reshape(2,-1).T
-#print(xy.shape, (max(x_train[:,0]).numpy()-min(x_train[:,0]).numpy())/10, 
-#                 max(x_train[:,1]).numpy()-min(x_train[:,1]).numpy()/50)
-#print(xy[0:10], xy[-1])
-z_pred = net(torch.tensor(xy, dtype = torch.float))#.detach().numpy()
-#regular grid so can use regular contourplot?
-#ax.tricontourf(
-X, Y = np.meshgrid(np.arange(min(x_train[:,0]).numpy(), max(x_train[:,0]).numpy(), 10),
-                   np.arange(min(x_train[:,1]).numpy(), max(x_train[:,1]).numpy(), 50))
+# Contour plot of results
+pred_y = net(x_test)
 fig, ax = plt.subplots()
-c = ax.contourf(X, Y, z_pred.detach().numpy().reshape(X.shape))
-fig.colorbar(c, ax=ax)
-plt.show()
-
-
-#matr = np.linspace((min(x_train[:,0]),max(x_train[:,0]), (min(x_train[:,1]),max(x_train[:,1]),10)
-
-
-#with torch.no_grad():
-#    predictions = net(x_test)
-
-# Plot the results
-#plt.plot(x_test.numpy(), y_test.numpy(), label='True function', color='r')
-#plt.scatter(x_train.numpy(), y_train.numpy(), label='Training data', color='g')
-#plt.plot(x_test.numpy(), predictions.numpy(), label='Predictions', linestyle='--')
-#plt.legend()
-#plt.title('Neural Network Approximation of f(x) = sin(x)^2')
-#plt.xlabel('x')
-#plt.ylabel('f(x)')
-#plt.show()
+ax.tricontour(x_test[:,0], x_test[:,1], pred_y.detach().numpy().flatten(), levels=14, linewidths=0.5, colors='k')
+cntr2 = ax.tricontourf(x_test[:,0], x_test[:,1], pred_y.detach().numpy().flatten() , levels=14, cmap="RdBu_r")
+fig.colorbar(cntr2, ax=ax)
+ax.set_title('Plane')
+# Pressure is usually shown with 1000 at the bottom as atmospheric pressure decreases with height
+ax.invert_yaxis()
+plt.scatter(x_test[:,0], x_test[:,1]) #check appropriate inversion too
+#plt.show() 
