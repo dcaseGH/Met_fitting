@@ -38,8 +38,11 @@ optimizer = optim.Adam(net.parameters(), lr=0.01)
 n_test = 40
 mydata, x_train, y_train, x_test, y_test = generate_data('../data1.nc', n_test=n_test) 
 print(mydata)
-cfp.con(mydata)
-
+#cfp.setvars(file='cf_plot_total.png')
+#cfp.con(mydata)
+cfp.setvars(file='cf_plot_test.png')
+cfp.con(x_test)
+exit()
 if standarize_data:# and False:
     # Compute the mean and standard deviation for features/independent variables
     train_mean = x_train.mean(0, keepdim=True)
@@ -82,4 +85,5 @@ ax.set_title('Plane')
 # Pressure is usually shown with 1000 at the bottom as atmospheric pressure decreases with height
 ax.invert_yaxis()
 plt.scatter(x_test[:,0], x_test[:,1]) #check appropriate inversion too
+#plt.savefig('nn_met.png')
 #plt.show() 

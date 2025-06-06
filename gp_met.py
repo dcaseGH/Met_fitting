@@ -12,7 +12,7 @@ standarize_data = True
 n_test = 40
 mydata, x_train, y_train, x_test, y_test = generate_data('../data1.nc', n_test=n_test) 
 print(mydata)
-cfp.con(mydata)
+#cfp.con(mydata)
 
 if standarize_data:# and False:
     # Compute the mean and standard deviation for features/independent variables
@@ -56,4 +56,5 @@ ax.set_title('Plane')
 # Pressure is usually shown with 1000 at the bottom as atmospheric pressure decreases with height
 ax.invert_yaxis()
 plt.scatter(x_test[:,0], x_test[:,1]) #check appropriate inversion too
+plt.savefig('gp_dumb.png')
 #plt.show() 
